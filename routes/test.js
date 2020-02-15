@@ -45,14 +45,14 @@ router.post('/join_test', isNotLoggedIn, async (req, res, next) => {
     //const hash = await bcrypt.hash(password, 12); //여기에 SALT를 써야함
     let hash = crypto.createHash("sha512").update(password + salt).digest("hex");
     await User.create({
-      uid,
+      email,
       nickname,
       password: hash,
       salt : salt,
     });
     res.json({
       code : 200,
-      uid,
+      email,
       nickname,
       password,
       hash,
@@ -179,14 +179,14 @@ router.post('/join_redis_test', isNotLoggedIn, async (req, res, next) => {
     //const hash = await bcrypt.hash(password, 12); //여기에 SALT를 써야함
     let hash = crypto.createHash("sha512").update(password + salt).digest("hex");
     await User.create({
-      uid,
+      email,
       nickname,
       password: hash,
       salt : salt,
     });
     res.json({
       code : 200,
-      uid,
+      email,
       nickname,
       password,
       hash,

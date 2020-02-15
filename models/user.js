@@ -1,8 +1,8 @@
 module.exports = (sequelize, DataTypes)=>(
     sequelize.define('user',{
-        uid :{
+        email :{
             type : DataTypes.STRING(30),
-            allowNull : false,
+            allowNull : true,
             unique : true,
         },
 
