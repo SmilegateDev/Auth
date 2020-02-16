@@ -19,6 +19,7 @@ db.User = require('./user')(sequelize, Sequelize);
 db.Post = require('./post')(sequelize, Sequelize);
 db.Reply = require('./reply')(sequelize, Sequelize);
 db.Location = require('./location')(sequelize, Sequelize);
+db.Follow = require('./follow')(sequelize, Sequelize);
 
 db.User.hasMany(db.Post);
 db.Post.belongsTo(db.User);
@@ -29,15 +30,15 @@ db.Reply.belongsTo(db.Reply);
 
 db.User.belongsToMany(db.User, {
   foreignKey : 'followingId',
-  as : 'Followers',
-  through : 'Follow',
+  as : 'follower',
+  through : db.Follow,
 });
 
 //같은 테이블 끼리 N:M관계임
 db.User.belongsToMany(db.User, {
   foreignKey : 'followerId',
-  as : 'Followings',
-  through : 'Follow',
+  as : 'following',
+  through : db.Follow,
 });
 
 
