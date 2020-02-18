@@ -1,5 +1,5 @@
 const redis = require('redis');
-var client = redis.createClient(6379, process.env.REDIS_ADDRESS);
+var client = redis.createClient(52738, process.env.REDIS_ADDRESS);
 
 
 // get value with key

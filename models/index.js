@@ -30,14 +30,14 @@ db.Reply.belongsTo(db.Reply);
 
 db.User.belongsToMany(db.User, {
   foreignKey : 'followingId',
-  as : 'follower',
+  as : 'Followers',
   through : db.Follow,
 });
 
 //같은 테이블 끼리 N:M관계임
 db.User.belongsToMany(db.User, {
   foreignKey : 'followerId',
-  as : 'following',
+  as : 'Followings',
   through : db.Follow,
 });
 

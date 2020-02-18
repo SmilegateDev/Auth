@@ -11,7 +11,7 @@ const client = require('../cache_redis');
 const router = express.Router();
 
 
-function createEmailkey(nickname, uid){
+function createEmailkey(nickname){
   var emailKey = crypto.randomBytes(256).toString('hex').substr(100, 5);
   client.set(emailKey, nickname, "EX", 60*60*24, function(err, response){
       console.log(response);
@@ -29,7 +29,7 @@ function createEmailkey(nickname, uid){
   var url = 'http://localhost:8002/auth/confirmEmail'+'?key='+emailKey;
   var mailOpt = {
     from : process.env.GMAIL_ID,
-    to : uid,
+    to : email,
     subject : 'Emial verify',
     html : '<h1>For verifing, Please click the link</h1><br>' + url
   };
@@ -53,9 +53,9 @@ function createEmailkey(nickname, uid){
 }
 
 router.post('/join', isNotLoggedIn, async (req, res, next) => {
-  const { uid, nickname, password } = req.body;
+  const { email, nickname, password } = req.body;
   try {
-    const exUser = await User.findOne({ where: { uid } });
+    const exUser = await User.findOne({ where: { email } });
     if (exUser) {
       req.flash('joinError', '이미 가입된 이메일입니다.');
       return res.status(400).send("이미 가입된 메일입니다.");
@@ -64,14 +64,14 @@ router.post('/join', isNotLoggedIn, async (req, res, next) => {
     //const hash = await bcrypt.hash(password, 12); //여기에 SALT를 써야함
     let hash = crypto.createHash("sha512").update(password + salt).digest("hex");
     await User.create({
-      uid,
+      email,
       nickname,
       password: hash,
       salt : salt,
     });
 
 
-    await createEmailkey(nickname, uid);
+    await createEmailkey(nickname);
 
     //임시 만료기간을 닉네임을 통해 확인
     client.set(nickname, 60*60*24, "EX", 60*60*24, function(err, response){
@@ -125,8 +125,8 @@ router.post('/login', isNotLoggedIn, (req, res, next) => {
       }
 
       //이메일 인증링크가 만료됬을시에
-      if(!client.get(user.uid)){
-        createEmailkey(user.nickname, user.uid);
+      if(!client.get(user.email)){
+        createEmailkey(user.nickname, user.email);
         return res.status(400).json({
           code : 400,
           messgae : '이메일 인증을 해주세요!',
@@ -191,7 +191,10 @@ router.post('/login', isNotLoggedIn, (req, res, next) => {
 router.get('/logout', isLoggedIn, (req, res) => {
   req.logout();
   req.session.destroy();
-  res.redirect('/');
+  res.status(200).json({
+    code : 200,
+    message : "logout",
+  })
 });
 
 router.get('/kakao', passport.authenticate('kakao'));

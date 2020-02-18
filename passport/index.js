@@ -14,7 +14,7 @@ module.exports = (passport) =>{
 
 
     //매 요청시 실행됨, 세션에 저장했던 아이디를 받아 DB에서 사용자 정보를 저장
-    passport.deserializeUser((id, done)=>{
+        passport.deserializeUser((id, done)=>{
         User.findOne({
             where : {id},
             include : [{
@@ -32,13 +32,10 @@ module.exports = (passport) =>{
             .then(user => done(null, user))
             .catch(err => done(err));
         //User.accessedAt = sequelize.literal('now()');
-        User.update({accessedAt: sequelize.literal('now()')}, {where: {uid : id}})
-        .then(result => {
-           res.json(result);
-        })
-        .catch(err => {
-           console.error(err);
-        });
+        // User.update({accessedAt: sequelize.literal('now()')}, {where: {id : id}})
+        // .catch(err => {
+        //    console.error(err);
+        // });
     
     });
 
