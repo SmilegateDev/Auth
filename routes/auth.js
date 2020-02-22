@@ -190,19 +190,68 @@ router.post('/login', isNotLoggedIn, (req, res, next) => {
 
 router.get('/logout', isLoggedIn, (req, res) => {
   req.logout();
-  req.session.destroy();
+  //req.session.destroy();
   res.status(200).json({
     code : 200,
     message : "logout",
   })
 });
 
+
 router.get('/kakao', passport.authenticate('kakao'));
 
 router.get('/kakao/callback', passport.authenticate('kakao', {
   failureRedirect: '/',
 }), (req, res) => {
-  res.redirect('/');
+  let user = req.user;
+  
+  try{
+    const token = jwt.sign({
+        id : user.id,
+        nickname : user.nickname,
+        status : user.status,
+    },
+    process.env.JWT_SECRET,
+    {
+        expiresIn : '1m',
+        issuer : 'nodebird',
+    }
+    );
+
+    //refresh token 추가
+    const refreshToken = jwt.sign({
+          id : user.id,
+          nickname : user.nickname,
+          user : user.status,
+      },
+      process.env.JWT_SECRET,
+      {
+          expiresIn : '60m',
+          issuer : 'nodebird',
+      }
+    );
+
+    //캐쉬에 등록
+    client.set(refreshToken, token, "EX", 60*60*24*30);
+
+
+    return res.status(200).json({
+        code : 200,
+        message : '토큰이 발급되었습니다.',
+        token,
+        refreshToken,
+    }).send();
+}
+
+catch(error){
+    console.error(error);
+    return res.status(500).json({
+        code : 500,
+        messgae : '서버 에러',
+    });
+}
+
+
 });
 
 module.exports = router;

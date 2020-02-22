@@ -8,9 +8,6 @@ const { Domain, User, Post, Hashtag } = require('../models');
 const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 const client = require('../cache_redis');
 
-
-const mongoPost = require('../schemas/post'); 
-
 const router = express.Router();
 
 // router.use(async (req, res, next) => {
@@ -26,7 +23,7 @@ const router = express.Router();
 
 router.use(cors());
 
-router.post('/token', isLoggedIn, apiLimiter, async (req, res) => {
+router.get('/token', isLoggedIn, apiLimiter, async (req, res) => {
     
     const {nickname, id, status} = req.body;
     const refreshToken = req.body.refreshToken;
@@ -70,19 +67,5 @@ router.get('/test', verifyToken, apiLimiter, (req, res)=>{
     res.json(req.decoded);
 });
 
-
-router.get('/posts/my', verifyToken, apiLimiter, (req, res)=>{
-
-    mongoPost.find({writer : req.decoded.id}).populate('writer')
-        .then((posts) =>{
-            console.log(posts);
-            res.json(posts);
-        })
-        .catch( (err) => {
-            console.error(err);
-            next(err);
-        });
-
-});
 
 module.exports = router;
