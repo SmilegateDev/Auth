@@ -23,43 +23,43 @@ const router = express.Router();
 
 router.use(cors());
 
-router.get('/token', isLoggedIn, apiLimiter, async (req, res) => {
+// router.get('/token', async (req, res) => {
     
-    const {nickname, id, status} = req.body;
-    const refreshToken = req.body.refreshToken;
+//     const {nickname, id, status} = req.body;
+//     const refreshToken = req.body.refreshToken;
 
-    try{
-        if(refreshToken && client.get(refreshToken)){
-            const token = jwt.sign({
-                id : id,
-                nickname : nickname,
-                status : status,
-            },
-            process.env.JWT_SECRET,
-            {
-                expiresIn : '1m',
-                issuer : 'nodebird',
-            }
-            );
+//     try{
+//         if(refreshToken && client.get(refreshToken)){
+//             const token = jwt.sign({
+//                 id : id,
+//                 nickname : nickname,
+//                 status : status,
+//             },
+//             process.env.JWT_SECRET,
+//             {
+//                 expiresIn : '1m',
+//                 issuer : 'nodebird',
+//             }
+//             );
 
-            client.set(refreshToken, token, "EX", 60*60);
+//             client.set(refreshToken, token, "EX", 60*60);
 
-            return res.status(200).json({
-                code : 200,
-                message : '토큰이 발급되었습니다.',
-                token,
-            });
-        }
-    }
+//             return res.status(200).json({
+//                 code : 200,
+//                 message : '토큰이 발급되었습니다.',
+//                 token,
+//             });
+//         }
+//     }
 
-    catch(error){
-        console.error(error);
-        return res.status(500).json({
-            code : 500,
-            messgae : '서버 에러',
-        });
-    }
-});
+//     catch(error){
+//         console.error(error);
+//         return res.status(500).json({
+//             code : 500,
+//             messgae : '서버 에러',
+//         });
+//     }
+// });
 
 
 //Test Code

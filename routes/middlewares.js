@@ -3,26 +3,26 @@ const RateLimit = require('express-rate-limit');
 
 const client = require('../cache_redis');
 
-exports.isLoggedIn = (req, res, next) =>{
-    if(req.isAuthenticated()){
-        next();
-    }
+// exports.isLoggedIn = (req, res, next) =>{
+//     if(req.isAuthenticated()){
+//         next();
+//     }
 
-    else{
-        res.status(403).send('로그인 필요');
-    }
-};
+//     else{
+//         res.status(403).send('로그인 필요');
+//     }
+// };
 
 
-exports.isNotLoggedIn = (req, res, next ) => {
-    if(!req.isAuthenticated()){
-        next();
-    }
+// exports.isNotLoggedIn = (req, res, next ) => {
+//     if(!req.isAuthenticated()){
+//         next();
+//     }
 
-    else{
-        res.redirect('/'); //여기 수정해야함
-    }
-};
+//     else{
+//         res.status(403).send('로그인 필요');
+//     }
+// };
 
 
 exports.verifyToken = (req, res, next) => {

@@ -79,7 +79,7 @@ router.post('/join', isNotLoggedIn, async (req, res, next) => {
   });
 
 
-    return res.redirect('/');
+    return res.status(200);
   } catch (error) {
     console.error(error);
     return next(error);
@@ -106,7 +106,7 @@ router.get('/confirmEmail',function (req, res) {
 
 
 router.post('/login', isNotLoggedIn, (req, res, next) => {
-  passport.authenticate('local', (authError, user, info) => {
+  passport.authenticate('local', {session : false}, (authError, user, info) => {
     if (authError) {
       console.log("authError");
       console.error(authError);
@@ -117,11 +117,6 @@ router.post('/login', isNotLoggedIn, (req, res, next) => {
       req.flash('loginError', info.message);
       return res.status(500).send('Login Error');
     }
-    return req.login(user, (loginError) => {
-      if (loginError) {
-        console.error(loginError);
-        return next(loginError);
-      }
 
       //이메일 인증링크가 만료됬을시에
       if(!client.get(user.email)){
@@ -178,28 +173,24 @@ router.post('/login', isNotLoggedIn, (req, res, next) => {
             messgae : '서버 에러',
         });
     }
-    
-    });
-    
-    return res.status(200);
 
   })(req, res, next);
 });
 
 
-router.get('/logout', isLoggedIn, (req, res) => {
-  req.logout();
-  //req.session.destroy();
-  res.status(200).json({
-    code : 200,
-    message : "logout",
-  })
-});
+// router.get('/logout', isLoggedIn, (req, res) => {
+//   req.logout();
+//   //req.session.destroy();
+//   res.status(200).json({
+//     code : 200,
+//     message : "logout",
+//   })
+// });
 
 
-router.get('/kakao', passport.authenticate('kakao'));
+router.get('/kakao', passport.authenticate('kakao', {session : false}));
 
-router.get('/kakao/callback', passport.authenticate('kakao', {
+router.get('/kakao/callback', passport.authenticate('kakao', { session : false,
   failureRedirect: '/',
 }), (req, res) => {
   let user = req.user;
@@ -251,6 +242,46 @@ catch(error){
 }
 
 
+});
+
+
+
+router.get('/token', async (req, res) => {
+    
+  const {nickname, id, status} = req.body;
+  const refreshToken = req.body.refreshToken;
+
+  try{
+      if(refreshToken && client.get(refreshToken)){
+          const token = jwt.sign({
+              id : id,
+              nickname : nickname,
+              status : status,
+          },
+          process.env.JWT_SECRET,
+          {
+              expiresIn : '1m',
+              issuer : 'nodebird',
+          }
+          );
+
+          client.set(refreshToken, token, "EX", 60*60);
+
+          return res.status(200).json({
+              code : 200,
+              message : '토큰이 발급되었습니다.',
+              token,
+          });
+      }
+  }
+
+  catch(error){
+      console.error(error);
+      return res.status(500).json({
+          code : 500,
+          messgae : '서버 에러',
+      });
+  }
 });
 
 module.exports = router;
