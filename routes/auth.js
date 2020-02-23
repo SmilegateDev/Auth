@@ -107,7 +107,6 @@ router.get('/confirmEmail',function (req, res) {
 
 router.post('/login', isNotLoggedIn, (req, res, next) => {
   passport.authenticate('local', (authError, user, info) => {
-    console.log("authError");
     if (authError) {
       console.log("authError");
       console.error(authError);
