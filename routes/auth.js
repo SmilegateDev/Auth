@@ -52,7 +52,7 @@ function createEmailkey(nickname){
 
 }
 
-router.post('/join', isNotLoggedIn, async (req, res, next) => {
+router.post('/join', async (req, res, next) => {
   const { email, nickname, password } = req.body;
   try {
     const exUser = await User.findOne({ where: { email } });
@@ -105,18 +105,15 @@ router.get('/confirmEmail',function (req, res) {
 
 
 
-router.post('/login', isNotLoggedIn, (req, res, next) => {
-  passport.authenticate('local', (authError, user, info) => {
-    if (authError) {
-      console.log("authError");
-      console.error(authError);
-      return next(authError);
-    }
+router.post('/login', (req, res, next) => {
+  let user;
 
+  
     if (!user) {
       req.flash('loginError', info.message);
       return res.status(500).send('Login Error');
     }
+
     return req.login(user, (loginError) => {
       if (loginError) {
         console.error(loginError);
@@ -183,7 +180,6 @@ router.post('/login', isNotLoggedIn, (req, res, next) => {
     
     return res.status(200);
 
-  })(req, res, next);
 });
 
 
