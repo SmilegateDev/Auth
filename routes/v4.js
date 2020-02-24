@@ -26,7 +26,7 @@ const router = express.Router();
 
 router.use(cors());
 
-router.post('/token', isLoggedIn, apiLimiter, async (req, res) => {
+router.post('/token', async (req, res) => {
     
     const {nickname, id, status} = req.body;
     const refreshToken = req.body.refreshToken;

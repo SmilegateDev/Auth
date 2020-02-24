@@ -1,5 +1,5 @@
 const redis = require('redis');
-var client = redis.createClient(50242, process.env.REDIS_ADDRESS);
+var client = redis.createClient(59927, process.env.REDIS_ADDRESS);
 
 
 //Test(Only Once)

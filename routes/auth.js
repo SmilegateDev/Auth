@@ -52,7 +52,7 @@ function createEmailkey(nickname){
 
 }
 
-router.post('/join', isNotLoggedIn, async (req, res, next) => {
+router.post('/join', async (req, res, next) => {
   const { email, nickname, password } = req.body;
   try {
     const exUser = await User.findOne({ where: { email } });
@@ -105,7 +105,7 @@ router.get('/confirmEmail',function (req, res) {
 
 
 
-router.post('/login', isNotLoggedIn, (req, res, next) => {
+router.post('/login', (req, res, next) => {
   passport.authenticate('local', {session : false}, (authError, user, info) => {
     if (authError) {
       console.log("authError");
@@ -118,14 +118,14 @@ router.post('/login', isNotLoggedIn, (req, res, next) => {
       return res.status(500).send('Login Error');
     }
 
-      //이메일 인증링크가 만료됬을시에
-      if(!client.get(user.email)){
-        createEmailkey(user.nickname, user.email);
-        return res.status(400).json({
-          code : 400,
-          messgae : '이메일 인증을 해주세요!',
-      });
-      }
+    //이메일 인증링크가 만료됬을시에
+    if(!client.get(user.email)){
+      createEmailkey(user.nickname, user.email);
+      return res.status(400).json({
+        code : 400,
+        messgae : '이메일 인증을 해주세요!',
+    });
+    }
 
       //로그인에 성공했으면 JWT 토큰 줘버리기
       try{

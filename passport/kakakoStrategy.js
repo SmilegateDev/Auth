@@ -8,11 +8,12 @@ module.exports = (passport) => {
     callbackURL: '/api/auth/kakao/callback',
   }, async (accessToken, refreshToken, profile, done) => {
     try {
-      const exUser = await User.findOne({ where: { snsId: profile.id, provider: 'kakao' } });
+      const exUser = await User.findOne({ where: { snsId: profile.id, provider: 'kakao' } }); //유저가 있는지 찾아봄
       if (exUser) {
         done(null, exUser);
       } 
       
+      //유저가 없으면 새로생성
       else {
         const newUser = await User.create({
           email: profile.account_email,

@@ -32,7 +32,7 @@ router.get('/mongo_test', function(req, res, next) {
 });
 
 //join test
-router.post('/join_test', isNotLoggedIn, async (req, res, next) => {
+router.post('/join_test',  async (req, res, next) => {
   const { uid, nickname, password } = req.body;
   console.log("debug");
   try {
@@ -67,7 +67,7 @@ router.post('/join_test', isNotLoggedIn, async (req, res, next) => {
 
 
 //login_test
-router.post('/login_test', isNotLoggedIn, (req, res, next) => {
+router.post('/login_test', (req, res, next) => {
   passport.authenticate('local', (authError, user, info) => {
     if (authError) {
       console.error(authError);
@@ -92,7 +92,7 @@ router.post('/login_test', isNotLoggedIn, (req, res, next) => {
 
 
 //token_test
-router.post('/token_test', isNotLoggedIn, (req, res, next) => {
+router.post('/token_test', (req, res, next) => {
   passport.authenticate('local', (authError, user, info) => {
     if (authError) {
       console.error(authError);
@@ -166,7 +166,7 @@ router.get('/redis_test', function(req, res, next) {
 
 
 //join_redis_test
-router.post('/join_redis_test', isNotLoggedIn, async (req, res, next) => {
+router.post('/join_redis_test',  async (req, res, next) => {
   const { uid, nickname, password } = req.body;
   console.log("debug");
   try {
@@ -267,11 +267,6 @@ router.get('/confirmEmail_test',function (req, res) {
   });
 
 });
-
-
-
-
-
 
 
 
