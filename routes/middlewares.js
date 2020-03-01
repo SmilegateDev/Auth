@@ -1,42 +1,18 @@
 const jwt = require('jsonwebtoken');
 const RateLimit = require('express-rate-limit');
-
 const client = require('../cache_redis');
 
-// exports.isLoggedIn = (req, res, next) =>{
-//     if(req.isAuthenticated()){
-//         next();
-//     }
-
-//     else{
-//         res.status(403).send('로그인 필요');
-//     }
-// };
-
-
-// exports.isNotLoggedIn = (req, res, next ) => {
-//     if(!req.isAuthenticated()){
-//         next();
-//     }
-
-//     else{
-//         res.status(403).send('로그인 필요');
-//     }
-// };
-
-
+//토큰 인증에 대한 미들웨어 함수
 exports.verifyToken = (req, res, next) => {
     try{
         req.decoded = jwt.verify(req.headers.authorization, process.env.JWT_SECRET);
 
         //이메일인증 제때 안하면 토큰 인증 X
         if(req.status === 1){
-            if(!client.get(req.nickname)){
-                return res.status(401).json({
-                    code : 401,
-                    messgae : '유효하지 않는 토큰',
-                });
-            }
+            return res.status(401).json({
+                code : 401,
+                messgae : '유효하지 않는 토큰',
+            });
         }
         return next();
     }
@@ -58,20 +34,7 @@ exports.verifyToken = (req, res, next) => {
     
 };
 
-
-exports.apiLimiter = new RateLimit({
-    windowMs : 60*1000,
-    max : 9999,
-    delayMs : 0,
-    handler(req, res){
-        res.status(this.statusCode).json({
-            code : this.statusCode,
-            message : '1분에 한 번만 요청할 수 있습니다.',
-        });
-    },
-});
-
-
+//새로운 버전이 나올때 구버전을 다운시키는 미들웨어
 exports.deprecated = (req, res) =>{
     res.status(410).json({
         code : 410,

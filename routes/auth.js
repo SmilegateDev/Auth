@@ -1,10 +1,8 @@
 const express = require('express');
 const passport = require('passport');
-const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
-const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 const { User } = require('../models');
 const client = require('../cache_redis');
 
@@ -13,6 +11,8 @@ const router = express.Router();
 
 function createEmailkey(nickname){
   var emailKey = crypto.randomBytes(256).toString('hex').substr(100, 5);
+  
+  //24시간내로 이메일 인증해야함
   client.set(emailKey, nickname, "EX", 60*60*24, function(err, response){
       console.log(response);
   });
@@ -61,7 +61,6 @@ router.post('/join', async (req, res, next) => {
       return res.status(400).send("이미 가입된 메일입니다.");
     }
     let salt = Math.round((new Date().valueOf() * Math.random())) + "";
-    //const hash = await bcrypt.hash(password, 12); //여기에 SALT를 써야함
     let hash = crypto.createHash("sha512").update(password + salt).digest("hex");
     await User.create({
       email,
@@ -87,17 +86,17 @@ router.post('/join', async (req, res, next) => {
 });
 
 
-
+//이메일 컨펌링크
 router.get('/confirmEmail',function (req, res) {
   client.get(req.query.key, function(err, response){
     if(response !== null){
       User.update({status : 2}, {where : {nickname : response}});
-      client.del(req.query.key);
-      return res.status(200).send();
+      client.del(req.query.key); //이메일 인증이 완료되면 레디스에서 키가 삭제됨
+      return res.status(200);
     }
 
     else{
-      return res.status(400).send();
+      return res.status(400);
     }
     
   });
@@ -113,12 +112,13 @@ router.post('/login', (req, res, next) => {
       return next(authError);
     }
 
+    //유저가 없으면 로그인 안됨
     if (!user) {
       req.flash('loginError', info.message);
       return res.status(500).send('Login Error');
     }
 
-    //이메일 인증링크가 만료됬을시에
+    //이메일 인증링크가 만료됬을시에 다시 재등록
     if(!client.get(user.email)){
       createEmailkey(user.nickname, user.email);
       return res.status(400).json({
@@ -137,11 +137,11 @@ router.post('/login', (req, res, next) => {
         process.env.JWT_SECRET,
         {
             expiresIn : '1m',
-            issuer : 'nodebird',
+            issuer : 'SmileGate_ESC',
         }
         );
 
-        //refresh token 추가
+        //refresh token 추가(30일 길이로 지정)
         const refreshToken = jwt.sign({
               id : user.id,
               nickname : user.nickname,
@@ -149,21 +149,23 @@ router.post('/login', (req, res, next) => {
           },
           process.env.JWT_SECRET,
           {
-              expiresIn : '60m',
-              issuer : 'nodebird',
+              expiresIn : '30 days',
+              issuer : 'SmileGate_ESC',
           }
         );
 
-        //캐쉬에 등록
+        //캐쉬에 리프레쉬토큰 등록(30일어치)
         client.set(refreshToken, token, "EX", 60*60*24*30);
 
 
-        return res.status(200).json({
+        res.status(200).json({
             code : 200,
             message : '토큰이 발급되었습니다.',
             token,
             refreshToken,
-        }).send();
+        });
+
+        return res.redirect('/');
     }
 
     catch(error){
@@ -187,7 +189,7 @@ router.post('/login', (req, res, next) => {
 //   })
 // });
 
-
+//카카오 로그인링크
 router.get('/kakao', passport.authenticate('kakao', {session : false}));
 
 router.get('/kakao/callback', passport.authenticate('kakao', { session : false,
@@ -204,7 +206,7 @@ router.get('/kakao/callback', passport.authenticate('kakao', { session : false,
     process.env.JWT_SECRET,
     {
         expiresIn : '1m',
-        issuer : 'nodebird',
+        issuer : 'SmileGate_ESC',
     }
     );
 
@@ -216,21 +218,22 @@ router.get('/kakao/callback', passport.authenticate('kakao', { session : false,
       },
       process.env.JWT_SECRET,
       {
-          expiresIn : '60m',
-          issuer : 'nodebird',
+          expiresIn : '30 days',
+          issuer : 'SmileGate_ESC',
       }
     );
 
-    //캐쉬에 등록
+    //캐쉬에 등록 리프레쉬토큰 등록
     client.set(refreshToken, token, "EX", 60*60*24*30);
 
 
-    return res.status(200).json({
+    res.status(200).json({
         code : 200,
         message : '토큰이 발급되었습니다.',
         token,
         refreshToken,
-    }).send();
+    });
+    return res.redirect('/');
 }
 
 catch(error){
@@ -245,7 +248,7 @@ catch(error){
 });
 
 
-
+//토큰이 만료됬을때 재발급하는 URI
 router.get('/token', async (req, res) => {
     
   const {nickname, id, status} = req.body;
@@ -261,10 +264,11 @@ router.get('/token', async (req, res) => {
           process.env.JWT_SECRET,
           {
               expiresIn : '1m',
-              issuer : 'nodebird',
+              issuer : 'SmileGate_ESC',
           }
           );
 
+          //리프레쉬토큰을 key값으로 토큰 재등록
           client.set(refreshToken, token, "EX", 60*60);
 
           return res.status(200).json({

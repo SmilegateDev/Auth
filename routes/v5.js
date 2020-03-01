@@ -3,11 +3,6 @@ const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const url = require('url');
 
-const { verifyToken, apiLimiter } = require('./middlewares');
-const { Domain, User, Post, Hashtag } = require('../models');
-const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
-const client = require('../cache_redis');
-
 const router = express.Router();
 
 // router.use(async (req, res, next) => {

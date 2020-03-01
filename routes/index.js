@@ -20,21 +20,4 @@ router.get('/', (req, res, next)=>{
         });
 });
 
-
-// router.post('/domain', (req, res, next)=> {
-//     Domain.create({
-//         userId : req.user.id,
-//         host : req.body.host,
-//         type : req.body.type,
-//         clientSecret : uuidv4(),
-//     })
-//         .then( ()=> {
-//             res.redirect('/');
-//         })
-//         .catch(  (error)=> {
-//             next(error);
-//         });
-// });
-
-
 module.exports = router;

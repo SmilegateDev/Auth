@@ -17,8 +17,6 @@ module.exports = (passport) => {
         let hash = crypto.createHash("sha512").update(password + salt).digest("hex");
         const result = (dbPassword === hash);
         
-        //const result = await bcrypt.compare(password, exUser.password);
-        
         if (result) {
           done(null, exUser);
         }
