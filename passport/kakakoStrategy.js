@@ -16,8 +16,8 @@ module.exports = (passport) => {
       //유저가 없으면 새로생성
       else {
         const newUser = await User.create({
-          email: profile.account_email,
-          nickname: profile.displayName,
+          email: 'NULL_CHANGE',
+          nickname: 'NULL_CHANGE',
           snsId: profile.id,
           provider: 'kakao',
           stauts : 2,
