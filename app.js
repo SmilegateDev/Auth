@@ -15,11 +15,6 @@ const connect = require('./schemas');
 
 //Test
 const redis = require('./cache_redis');
-
-const v1 = require('./routes/v1');
-const v2 = require('./routes/v2');
-const v4 = require('./routes/v4');
-const v5 = require('./routes/v5');
 const test = require('./routes/test');
 
 const app = express();
@@ -50,10 +45,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/test',test);
-app.use('/v1',v1);
-app.use('/v2',v2);
-app.use('/v4/api',v4);
-app.use('/api/v5',v5);
 app.use('/api/auth', authRouter);
 app.use('/', indexRouter);
 

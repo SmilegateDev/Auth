@@ -9,11 +9,11 @@ const client = require('../cache_redis');
 const router = express.Router();
 
 
-function createEmailkey(nickname){
+function createEmailkey(email, nickname){
   var emailKey = crypto.randomBytes(256).toString('hex').substr(100, 5);
   
   //24시간내로 이메일 인증해야함
-  client.set(emailKey, nickname, "EX", 60*60*24, function(err, response){
+  client.set(emailKey, email, "EX", 60*60*24, function(err, response){
       console.log(response);
   });
 
@@ -26,7 +26,7 @@ function createEmailkey(nickname){
     }
   });
 
-  var url = 'http://localhost:8002/auth/confirmEmail'+'?key='+emailKey;
+  var url = 'http://localhost:8001/auth/confirmEmail'+'?key='+emailKey;
   var mailOpt = {
     from : process.env.GMAIL_ID,
     to : email,
@@ -70,7 +70,7 @@ router.post('/join', async (req, res, next) => {
     });
 
 
-    await createEmailkey(nickname);
+    await createEmailkey(email, nickname);
 
     //임시 만료기간을 닉네임을 통해 확인
     client.set(nickname, 60*60*24, "EX", 60*60*24, function(err, response){
@@ -78,7 +78,10 @@ router.post('/join', async (req, res, next) => {
   });
 
 
-    return res.status(200);
+    return res.status(200).json({
+      code : 200,
+      msg  : "회원가입이 완료되었습니다."
+    })
   } catch (error) {
     console.error(error);
     return next(error);
@@ -89,15 +92,22 @@ router.post('/join', async (req, res, next) => {
 //이메일 컨펌링크
 router.get('/confirmEmail',function (req, res) {
   client.get(req.query.key, function(err, response){
+
     if(response !== null){
-      User.update({status : 2}, {where : {nickname : response}});
+      User.update({status : 2}, {where : {email : response}});
       client.del(req.query.key); //이메일 인증이 완료되면 레디스에서 키가 삭제됨
-      return res.status(200);
+      return res.status(200).json({
+        code : 200,
+        msg : "인증이 완료되었습니다."
+      })
+    }
+    else{
+      return res.status(400).json({
+        code : "400",
+        msg : "이미 만료된 링크이거나 잘못된 접근입니다."
+      });
     }
 
-    else{
-      return res.status(400);
-    }
     
   });
 });
@@ -115,12 +125,15 @@ router.post('/login', (req, res, next) => {
     //유저가 없으면 로그인 안됨
     if (!user) {
       req.flash('loginError', info.message);
-      return res.status(500).send('Login Error');
+      return res.status(500).json({
+        code : 500,
+        msg : "유저가 존재하지 않습니다"
+      })
     }
 
     //이메일 인증링크가 만료됬을시에 다시 재등록
     if(!client.get(user.email)){
-      createEmailkey(user.nickname, user.email);
+      createEmailkey(user.email, user.nickname);
       return res.status(400).json({
         code : 400,
         messgae : '이메일 인증을 해주세요!',

@@ -1,5 +1,5 @@
 {
-  "name": "SmileGate_ESC-Auth",
+  "name": "SmileGate_ESC-Auth-API",
   "version": "0.0.1",
   "description": "SmileGate_ESC Auth Server",
   "main": "app.js",

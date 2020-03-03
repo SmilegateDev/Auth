@@ -58,9 +58,5 @@ router.use(cors());
 
 
 //Test Code
-router.get('/test', verifyToken, apiLimiter, (req, res)=>{
-    res.json(req.decoded);
-});
-
 
 module.exports = router;
