@@ -193,6 +193,41 @@ router.post('/login', (req, res, next) => {
 });
 
 
+router.get('/checkoutNickname', (req,res)=>{
+  User.findOne({where :{nickname : req.query.nickname}})
+  .then(result =>{
+    if(result == 0)
+      return res.status(200).json({
+        code : 200,
+        msg : "닉네임을 사용할 수 있습니다."
+      })
+    else{
+      return res.status(400).json({
+        code : 400,
+        msg :"닉네임이 이미 존재합니다."
+      })
+    }
+  })
+})
+
+
+router.get('/checkoutEmail', (req,res)=>{
+  User.findOne({where :{email : req.query.email}})
+  .then(result =>{
+    if(result == 0)
+      return res.status(200).json({
+        code : 200,
+        msg : "이메일을 사용할 수 있습니다."
+      })
+    else{
+      return res.status(400).json({
+        code : 400,
+        msg :"이메일이 이미 존재합니다."
+      })
+    }
+  })
+})
+
 // router.get('/logout', isLoggedIn, (req, res) => {
 //   req.logout();
 //   //req.session.destroy();
