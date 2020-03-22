@@ -8,7 +8,7 @@ const client = require('../cache_redis');
 
 const router = express.Router();
 
-
+// Method //
 function createEmailkey(email, nickname){
   var emailKey = crypto.randomBytes(256).toString('hex').substr(100, 5);
   
@@ -52,8 +52,16 @@ function createEmailkey(email, nickname){
 
 }
 
+
+//////////////////////////////////
+
+//   Controll   //
+
+
 router.post('/join', async (req, res, next) => {
   const { email, nickname, password } = req.body;
+  
+  //Searching find user
   try {
     const exUser = await User.findOne({ where: { email } });
     if (exUser) {
@@ -72,7 +80,7 @@ router.post('/join', async (req, res, next) => {
 
     await createEmailkey(email, nickname);
 
-    //임시 만료기간을 닉네임을 통해 확인
+    // key : nickname , value : time (check for email confirm)
     client.set(nickname, 60*60*24, "EX", 60*60*24, function(err, response){
     console.log(response);
   });
@@ -107,14 +115,14 @@ router.get('/confirmEmail',function (req, res) {
         msg : "이미 만료된 링크이거나 잘못된 접근입니다."
       });
     }
-
-    
   });
 });
 
 
 
 router.post('/login', (req, res, next) => {
+  
+  // using passport module only auth(not use session)
   passport.authenticate('local', {session : false}, (authError, user, info) => {
     if (authError) {
       console.log("authError");
@@ -169,6 +177,12 @@ router.post('/login', (req, res, next) => {
 
         //캐쉬에 리프레쉬토큰 등록(30일어치)
         client.set(refreshToken, token, "EX", 60*60*24*30);
+
+        
+        // TODO : 
+        //var follows = Get( from mongoDB )
+        //follows = follows.json(  )
+        //client.set( id, follows )
 
 
         res.status(200).json({
