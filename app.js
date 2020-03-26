@@ -7,6 +7,8 @@ const session = require('express-session');
 const flash = require('connect-flash');
 require('dotenv').config();
 
+
+const swagger = require('./swagger')
 const { sequelize } = require('./models');
 const passportConfig = require('./passport');
 const authRouter = require('./routes/auth');
@@ -27,6 +29,7 @@ app.set('view engine', 'pug');
 app.set('port', process.env.PORT || 8002);
 
 app.use(morgan('dev'));
+app.use(swagger)
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -61,6 +64,8 @@ app.use((err, req, res, next) => {
   res.status(err.status || 500);
   res.render('error');
 });
+
+
 
 app.listen(app.get('port'), () => {
   console.log(app.get('port'), '번 포트에서 대기중');

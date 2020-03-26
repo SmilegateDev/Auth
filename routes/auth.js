@@ -8,6 +8,14 @@ const client = require('../cache_redis');
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * tags:
+ *   name: Auth
+ *   description: 회원가입 및 인증처리
+ */
+
+
 // Method //
 function createEmailkey(email, nickname){
   var emailKey = crypto.randomBytes(256).toString('hex').substr(100, 5);
@@ -58,6 +66,34 @@ function createEmailkey(email, nickname){
 //   Controll   //
 
 
+/**
+ * @swagger
+ * /join:
+ *   post:
+ *     summary: 회원가입
+ *     tags: [Join]
+ *     parameters:
+ *       - in: body
+ *         name: user
+ *         schema:
+ *            type : object
+ *            required :
+ *              - email
+ *                nickname
+ *                password
+ *            properties : 
+ *              email :
+ *                type : string
+ *              nickname :
+ *                type : string
+ *              password :
+ *                type : string
+ *         description:
+ *          사용자 아이디 전달
+ *     responses:
+ *       200:
+ *         description: "회원가입완료"
+ */
 router.post('/join', async (req, res, next) => {
   const { email, nickname, password } = req.body;
   
@@ -97,6 +133,26 @@ router.post('/join', async (req, res, next) => {
 });
 
 
+/**
+ * @swagger
+ * /confirmEmail?{emailkey}:
+ *   get:
+ *     summary: Email confirm
+ *     tags: [Email]
+ *     parameters:
+ *       - in: query
+ *         name: key
+ *         schema:
+ *            type : String
+ *         description:
+ *          이메일인증
+ *     responses:
+ *       200:
+ *         description: "이메일 인증완료"
+ * 
+ *       400:
+ *         description: "이미 만료된 링크이거나 잘못된 접근입니다."
+ */
 //이메일 컨펌링크
 router.get('/confirmEmail',function (req, res) {
   client.get(req.query.key, function(err, response){
@@ -119,7 +175,44 @@ router.get('/confirmEmail',function (req, res) {
 });
 
 
-
+/**
+ * @swagger
+ * /login:
+ *   get:
+ *     summary: login
+ *     tags: [Login]
+ *     parameters:
+ *       - in: body
+ *         name: user
+ *         schema:
+ *            type : object
+ *            required :
+ *              - email
+ *                password
+ *            properties : 
+ *              email :
+ *                type : string
+ *              password :
+ *                type : string
+ *         description:
+ *          login
+ *     responses:
+ *       '200':
+ *         content:
+ *            application/json:
+ *              schema:
+ *                type : object
+ *                properties:
+ *                  code:
+ *                    type: string
+ *                    description : The status code
+ *                  token:
+ *                    type: string
+ *                    description : token
+ *                  refreshToken :
+ *                    type: string
+ *                    description : refreshToken
+ */
 router.post('/login', (req, res, next) => {
   
   // using passport module only auth(not use session)
