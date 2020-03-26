@@ -20,6 +20,8 @@ db.Post = require('./post')(sequelize, Sequelize);
 db.Reply = require('./reply')(sequelize, Sequelize);
 db.Location = require('./location')(sequelize, Sequelize);
 db.Follow = require('./follow')(sequelize, Sequelize);
+db.Likes = require('./likes')(sequelize, Sequelize);
+
 
 db.User.hasMany(db.Post);
 db.Post.belongsTo(db.User);

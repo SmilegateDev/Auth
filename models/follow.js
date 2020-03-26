@@ -1,6 +1,17 @@
 module.exports = (sequelize, DataTypes)=>(
     sequelize.define('follow',{
-
+        followerId :{
+            type : DataTypes.STRING(30),
+            allowNull : false,
+            defaultValue : 0,
+            primaryKey: true
+        },
+        followingId :{
+            type : DataTypes.STRING(30),
+            allowNull : false,
+            defaultValue : 0,
+            primaryKey: true
+        },
         like_num : {
             type : DataTypes.INTEGER,
             allowNull : false,
@@ -24,6 +35,7 @@ module.exports = (sequelize, DataTypes)=>(
     
         {
             paranoid : true,
+            primaryKey : true,
         }
 
     

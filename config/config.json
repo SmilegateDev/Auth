@@ -1,9 +1,9 @@
 {
   "development": {
-    "username": "root",
-    "password": "root",
+    "username": "SMALLFAIRY",
+    "password": "wjdtmdwls45",
     "database": "test2",
-    "host": "127.0.0.1",
+    "host": "cantremember-web-service.cx5ttrqsjgtv.us-east-1.rds.amazonaws.com",
     "dialect": "mysql",
     "operatorsAliases": false
   },

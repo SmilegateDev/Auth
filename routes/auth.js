@@ -3,7 +3,7 @@ const passport = require('passport');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
-const { User } = require('../models');
+const { User, Follow } = require('../models');
 const client = require('../cache_redis');
 
 const router = express.Router();
@@ -277,8 +277,14 @@ router.post('/login', (req, res, next) => {
         
         // TODO : 
         //var follows = Get( from mongoDB )
-        //follows = follows.json(  )
+        //follows = follows.json( )
         //client.set( id, follows )
+
+
+        //Save follow list for json to redis server 
+        var follows = await Follow.findAll({ where : {followingId : id }});
+        var parse_follows = JSON.parse(follows);
+        client.set("_"+id, parse_follows, 60*60*3);
 
 
         res.status(200).json({
