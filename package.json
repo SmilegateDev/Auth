@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "start": "nodemon app",
-    "test": "mocha"
+    "test": "mocha",
+    "sonar": "node sonar-test.js"
   },
   "author": "Zero Cho",
   "license": "ISC",
@@ -38,6 +39,7 @@
     "mocha": "^7.0.1",
     "nodemon": "^1.18.10",
     "should": "^13.2.3",
+    "sonarqube-scanner": "^2.6.0",
     "supertest": "^4.0.2",
     "swagger-jsdoc": "^4.0.0",
     "swagger-ui-express": "^4.1.4"
