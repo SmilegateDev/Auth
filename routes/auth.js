@@ -197,7 +197,7 @@ router.get('/confirmEmail',function (req, res) {
  *         description:
  *          login
  *     responses:
- *       '200':
+ *       200:
  *         content:
  *            application/json:
  *              schema:
@@ -212,6 +212,9 @@ router.get('/confirmEmail',function (req, res) {
  *                  refreshToken :
  *                    type: string
  *                    description : refreshToken
+ *       500:
+ *         description : "Server Error or Notfound"
+ * 
  */
 router.post('/login', (req, res, next) => {
   
@@ -299,7 +302,30 @@ router.post('/login', (req, res, next) => {
   })(req, res, next);
 });
 
-
+/**
+ * @swagger
+ * /checkNickname:
+ *   get:
+ *     summary: 닉네임체크
+ *     tags: [Join]
+ *     parameters:
+ *       - in: body
+ *         name: user
+ *         schema:
+ *            type : object
+ *            required :
+ *              - nickname
+ *            properties : 
+ *              nickname :
+ *                type : string
+ *         description:
+ *          nickname check
+ *     responses:
+ *       200:
+ *         description: "닉네임 사용가능"
+ *       400:
+ *         description : "사용불가"
+ */
 router.get('/checkoutNickname', (req,res)=>{
   User.findOne({where :{nickname : req.query.nickname}})
   .then(result =>{
@@ -318,6 +344,30 @@ router.get('/checkoutNickname', (req,res)=>{
 })
 
 
+/**
+ * @swagger
+ * /checkEmail:
+ *   get:
+ *     summary: Email Checking
+ *     tags: [Join]
+ *     parameters:
+ *       - in: body
+ *         name: user
+ *         schema:
+ *            type : object
+ *            required :
+ *              - email
+ *            properties : 
+ *              email :
+ *                type : string
+ *         description:
+ *          nickname check
+ *     responses:
+ *       200:
+ *         description: "이메일 사용가능"
+ *       400:
+ *         description : "사용불가"
+ */
 router.get('/checkoutEmail', (req,res)=>{
   User.findOne({where :{email : req.query.email}})
   .then(result =>{
@@ -344,6 +394,23 @@ router.get('/checkoutEmail', (req,res)=>{
 //   })
 // });
 
+
+
+
+
+/**
+ * @swagger
+ * /kakao:
+ *   get:
+ *     summary: kakao Oauth login
+ *     tags: [Login]
+ *     responses:
+ *       200:
+ *          description : Ok
+ *       500:
+ *         description : "Server Error or Notfound"
+ * 
+ */
 //카카오 로그인링크
 router.get('/kakao', passport.authenticate('kakao', {session : false}));
 
@@ -402,6 +469,38 @@ catch(error){
 
 });
 
+
+/**
+ * @swagger
+ * /token:
+ *   get:
+ *     summary: prolong token
+ *     tags: [Token]
+ *     parameters:
+ *       - in: body
+ *         name: user
+ *         schema:
+ *            type : object
+ *            required :
+ *              - id
+ *                nickname
+ *                status
+ *                refreshToken
+ *            properties : 
+ *              id :
+ *                type : string
+ *              nickname :
+ *                type : string
+ *              status :
+ *                type : int
+ *              refreshToken:
+ *                type : string
+ *         description:
+ *          token prolong
+ *     responses:
+ *       200:
+ *         description: "token prolong and send new token"
+ */
 
 //토큰이 만료됬을때 재발급하는 URI
 router.get('/token', async (req, res) => {
