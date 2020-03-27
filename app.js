@@ -13,15 +13,13 @@ const { sequelize } = require('./models');
 const passportConfig = require('./passport');
 const authRouter = require('./routes/auth');
 const indexRouter = require('./routes');
-const connect = require('./schemas');
 
 //Test
 const redis = require('./cache_redis');
-const test = require('./routes/test');
+//const test = require('./routes/test');
 
 const app = express();
 sequelize.sync(); // connect MySQL
-connect(); //connect mongoDB
 passportConfig(passport); //use passport module
 
 app.set('views', path.join(__dirname, 'views'));
@@ -47,7 +45,7 @@ app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use('/test',test);
+//app.use('/test',test);
 app.use('/api/auth', authRouter);
 app.use('/', indexRouter);
 
