@@ -274,17 +274,11 @@ router.post('/login', (req, res, next) => {
         //캐쉬에 리프레쉬토큰 등록(30일어치)
         client.set(refreshToken, token, "EX", 60*60*24*30);
 
-        
-        // TODO : 
-        //var follows = Get( from mongoDB )
-        //follows = follows.json( )
-        //client.set( id, follows )
-
 
         //Save follow list for json to redis server 
-        var follows = await Follow.findAll({ where : {followingId : id }});
+        var follows = Follow.findAll({ where : {followingId : id }});
         var parse_follows = JSON.parse(follows);
-        client.set("_"+id, parse_follows, 60*60*3);
+        client.set("_follow_"+id, parse_follows, 60*60*3);
 
 
         res.status(200).json({
