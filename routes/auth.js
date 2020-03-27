@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const { User, Follow } = require('../models');
 const client = require('../cache_redis');
+const { Post } = require('../schemas/post');
 
 const router = express.Router();
 
@@ -279,6 +280,11 @@ router.post('/login', (req, res, next) => {
         var follows = Follow.findAll({ where : {followingId : id }});
         var parse_follows = JSON.parse(follows);
         client.set("_follow_"+id, parse_follows, 60*60*3);
+
+        //Save MyPost for json to redis server
+        var myPosts = Post.findAll({where : {userId : id}});
+        var parse_posts = JSON.parse(myPosts);
+        client.setex("_posts_"+id, parse_posts, 60*60*3);
 
 
         res.status(200).json({

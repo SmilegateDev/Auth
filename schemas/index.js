@@ -35,8 +35,6 @@ module.exports = () =>{
         connect();
     });
 
-    require('./user');
-  //  require('./comment');
     require('./post');
 
 };
