@@ -10,8 +10,8 @@ module.exports = () =>{
         }
 
         //mongoose.connect('mongodb://root:root@localhost:27017/admin', {
-        mongoose.connect('mongodb://localhost:27017/test', {
-            dbName: 'nodejs',
+        mongoose.connect('mongodb://54.208.140.55:27017/SmileGate-Auth', {
+            dbName: 'test',
         }, (error) => {
             if(error){
                 console.log('몽고디비 연결 에러', error);
