@@ -277,9 +277,17 @@ router.post('/login', (req, res, next) => {
 
 
         //Save follow list for json to redis server 
-        var follows = Follow.findAll({ where : {followingId : id }});
-        var parse_follows = JSON.parse(follows);
-        client.set("_follow_"+id, parse_follows, 60*60*3);
+        var follows = Follow.findAll({ where : { followingId : id },
+            attributes:['followerId']
+          })
+          .then(result=>
+            {
+              followerList=result;
+            });
+        console.log(followerList);
+        var parse_follows = JSON.stringify(followerList);
+        let key = "_follow_"+user.id
+        client.set(key, parse_follows, "EX", 60*60*3);
 
 
         res.status(200).json({
